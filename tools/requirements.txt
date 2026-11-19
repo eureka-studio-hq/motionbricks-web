@@ -1,0 +1,7 @@
+# Python 3.12+ (what NVIDIA MotionBricks requires). No GPU, CUDA or TensorRT needed.
+numpy
+scipy
+onnx
+onnxruntime
+warp-lang>=1.17.0
+usd-core

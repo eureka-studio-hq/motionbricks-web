@@ -1,0 +1,7 @@
+Direct the Hero (motionbricks-web)
+Copyright 2026 Eureka Studios
+
+This product includes software derived from NVIDIA MotionBricks
+(https://github.com/NVlabs/motionbricks), Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES,
+licensed under the Apache License, Version 2.0. web/js/motionbricks.js ports its encode/decode
+code to JavaScript, and tools/ calls NVIDIA's Python package.

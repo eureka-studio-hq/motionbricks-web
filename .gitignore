@@ -1,0 +1,10 @@
+# Built locally from NVIDIA MotionBricks (see README). The poses are evaluation-only: never commit them.
+web/data/skeleton.json
+web/data/pose_library.json
+web/model/
+
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.vercel/

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direct the Hero · MotionBricks in your browser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --y: #f2c40c; --g: #3ee07a; --ink: #e9edf5; --mute: #8a93a6; --glass: rgba(16, 20, 28, .62); --line: rgba(255,255,255,.08); }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #0b0e14; color: var(--ink); font-family: 'Space Grotesk', system-ui, sans-serif; overflow: hidden; }
+  #stage { position: fixed; inset: 0; }
+  .panel { position: fixed; background: var(--glass); backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%); border: 1px solid var(--line); border-radius: 14px; }
+  #title { top: 18px; left: 18px; padding: 16px 18px 14px; max-width: 360px; }
+  #title h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; font-weight: 700; }
+  #title h1 span { color: var(--y); }
+  #title p { margin: 6px 0 0; color: var(--mute); font-size: 13px; line-height: 1.45; }
+  #title .key { font: 11px 'JetBrains Mono', monospace; margin-top: 10px; line-height: 1.6; }
+  #title .key b { color: var(--g); }
+  #title .key a { color: var(--mute); }
+  #title .tag { display: inline-flex; gap: 6px; align-items: center; margin-top: 10px; font: 600 11px 'JetBrains Mono', monospace; color: var(--g); letter-spacing: .04em; }
+  #title .tag i { width: 7px; height: 7px; border-radius: 50%; background: var(--g); box-shadow: 0 0 10px var(--g); animation: blink 1.6s infinite; }
+  @keyframes blink { 50% { opacity: .35; } }
+  #stats { top: 18px; right: 18px; padding: 14px 16px; width: 262px; font: 12px 'JetBrains Mono', monospace; }
+  #stats .row { display: flex; justify-content: space-between; padding: 3px 0; color: var(--mute); }
+  #stats .row b { color: var(--ink); font-weight: 600; }
+  #stats .big { font: 700 30px 'Space Grotesk'; color: var(--ink); letter-spacing: -.02em; }
+  #stats .cap { color: var(--mute); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; }
+  #spark { display: flex; align-items: flex-end; gap: 2px; height: 28px; margin: 8px 0 10px; }
+  #spark i { flex: 1; background: linear-gradient(var(--y), #b38f00); border-radius: 2px 2px 0 0; opacity: .85; }
+  #dock { bottom: 22px; left: 50%; transform: translateX(-50%); padding: 8px; display: flex; gap: 6px; align-items: center; }
+  #dock button { all: unset; cursor: pointer; padding: 10px 14px; border-radius: 10px; font-size: 14px; font-weight: 500; color: var(--ink); display: flex; gap: 8px; align-items: center; transition: background .15s, color .15s, transform .1s; }
+  #dock button:hover { background: rgba(255,255,255,.07); }
+  #dock button:active { transform: scale(.97); }
+  #dock button.on { background: var(--y); color: #14110a; }
+  #dock button kbd { font: 600 10px 'JetBrains Mono'; opacity: .55; border: 1px solid currentColor; border-radius: 4px; padding: 1px 4px; }
+  #dock .sep { width: 1px; height: 26px; background: var(--line); margin: 0 4px; }
+  #dock svg { width: 18px; height: 18px; }
+  #targets.on { color: var(--g) !important; background: rgba(62,224,122,.12) !important; }
+  #patterns { bottom: 84px; left: 50%; transform: translate(-50%, 10px); width: min(640px, 94vw); padding: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px; opacity: 0; visibility: hidden; transition: .25s cubic-bezier(.2,.8,.2,1); z-index: 5; }
+  #patterns.open { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+  #patterns button { all: unset; cursor: pointer; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; transition: background .15s, border-color .15s; }
+  #patterns button:hover { background: rgba(242,196,12,.08); border-color: rgba(242,196,12,.5); }
+  #patterns b { font-size: 14px; font-weight: 600; color: var(--ink); }
+  #patterns span { font-size: 12px; color: var(--mute); line-height: 1.4; }
+  #run.on { color: var(--y) !important; background: rgba(242,196,12,.1) !important; }
+  #posture.on { color: var(--y) !important; background: rgba(242,196,12,.1) !important; }
+  #look { right: 18px; bottom: 22px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; font-size: 12.5px; }
+  #look .grp { display: flex; align-items: center; gap: 4px; }
+  #look .grp span { width: 70px; color: var(--mute); font: 11px 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .06em; }
+  #look button { all: unset; cursor: pointer; padding: 6px 10px; border-radius: 8px; color: var(--ink); transition: background .15s; }
+  #look button:hover { background: rgba(127,127,127,.12); }
+  #look button.on { background: var(--y); color: #14110a; }
+  body.light { --ink: #1d2433; --mute: #5d6679; --glass: rgba(255,255,255,.7); --line: rgba(29,36,51,.10); --y: #ff7a5c; background: #ffe9d6; }
+  body.light #title h1 span { color: #ff6a4a; }
+  body.light #beat { color: #1d2433; text-shadow: 0 6px 30px rgba(255,255,255,.7); }
+  body.light #loader { background: radial-gradient(ellipse at center, rgba(255,233,214,.55), #ffe9d6 75%); }
+  body.light #spark i { background: linear-gradient(#ff7a5c, #ffb08f); }
+  body.light #cursorHint { text-shadow: 0 1px 8px #fff; }
+  body.light #dock button.on, body.light #look button.on { color: #fff; }
+  #cursorHint { position: fixed; bottom: 92px; left: 50%; transform: translateX(-50%); font: 12px 'JetBrains Mono'; color: var(--mute); pointer-events: none; text-shadow: 0 1px 8px #000; }
+  #toast { position: fixed; top: 22px; left: 50%; transform: translate(-50%, -12px); opacity: 0; transition: .35s cubic-bezier(.2,.8,.2,1); padding: 10px 16px; font-size: 14px; pointer-events: none; white-space: nowrap; }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+  #beat { position: fixed; left: 50%; top: 22%; transform: translateX(-50%); font: 700 clamp(28px, 6vw, 64px) 'Space Grotesk'; letter-spacing: -.03em; color: var(--ink); opacity: 0; pointer-events: none; text-transform: lowercase; text-shadow: 0 6px 40px rgba(0,0,0,.6); }
+  #beat.pop { animation: pop 1.3s cubic-bezier(.2,.8,.2,1); }
+  @keyframes pop { 0% { opacity: 0; transform: translate(-50%, 14px) scale(.96); } 18% { opacity: .92; transform: translate(-50%, 0) scale(1); } 70% { opacity: .92; } 100% { opacity: 0; transform: translate(-50%, -10px); } }
+  #loader { position: fixed; inset: 0; display: grid; place-items: center; background: radial-gradient(ellipse at center, rgba(11,14,20,.55), #0b0e14 75%); transition: opacity .8s, visibility .8s; z-index: 10; }
+  #loader.done { opacity: 0; visibility: hidden; }
+  #loader .card { width: min(460px, 88vw); }
+  #loader h2 { margin: 0 0 6px; font-size: 26px; letter-spacing: -.02em; }
+  #loader p { margin: 0 0 18px; color: var(--mute); font-size: 14px; line-height: 1.5; }
+  #loader .track { height: 4px; background: rgba(255,255,255,.08); border-radius: 4px; overflow: hidden; }
+  #loadbar { height: 100%; width: 0; background: linear-gradient(90deg, var(--y), #ffe58a); transition: width .2s; }
+  #loadtext { margin-top: 10px; font: 12px 'JetBrains Mono'; color: var(--mute); }
+  @media (max-width: 900px) { #look { top: 150px; bottom: auto; } }
+  @media (max-width: 720px) { #stats { display: none; } #title { max-width: calc(100vw - 36px); } #dock button span.lbl { display: none; } }
+</style>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+               "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div id="stage"></div>
+
+<div id="title" class="panel">
+  <h1>Direct the <span>hero</span></h1>
+  <p>Every step, duck, vault and sit is generated live by NVIDIA's MotionBricks AI model, running inside this browser tab. No server, no GPU required.</p>
+  <div class="tag"><i></i>MODEL RUNNING LOCALLY</div>
+  <p class="key"><b>green</b> = the target pose handed to the model; everything in between is generated. Model: <a href="https://github.com/NVlabs/motionbricks" target="_blank" rel="noopener">NVIDIA MotionBricks</a> · built by Eureka Studios</p>
+</div>
+
+<div id="stats" class="panel">
+  <div class="cap">Last generation</div>
+  <div class="big" id="lastMs">–</div>
+  <div id="spark"></div>
+  <div class="row">average <b id="avgMs">–</b></div>
+  <div class="row">generations <b id="gens">0</b></div>
+  <div class="row">motion generated <b id="secs">0.0 s</b></div>
+  <div class="row">buffered ahead <b id="ahead">0.0 s</b></div>
+  <div class="row">backend <b id="backend">loading…</b></div>
+</div>
+
+<div id="dock" class="panel">
+  <button data-tool="bar" title="Place a bar (1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 21V5h14v16"/></svg><span class="lbl">Bar</span><kbd>1</kbd></button>
+  <button data-tool="box" title="Place a box (2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="9" rx="1"/></svg><span class="lbl">Box</span><kbd>2</kbd></button>
+  <button data-tool="seat" title="Place a seat (3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4v16M6 13h12v7"/></svg><span class="lbl">Seat</span><kbd>3</kbd></button>
+  <div class="sep"></div>
+  <button id="patternsBtn" title="Pick a pattern"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19h16M7 19V9M17 19v-6M12 19V5"/></svg><span class="lbl">Patterns</span></button>
+  <button id="run" title="Run everywhere"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="14" cy="4.5" r="2"/><path d="M8 21l3-6 3 2v5M6 12l3-3 4 1 3 3 3 1M11 15l-1-5"/></svg><span class="lbl">Run</span></button>
+  <button id="posture" class="on" title="Posture layer: lift chest and head (display only)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M8 7l4-4 4 4"/></svg><span class="lbl">Posture</span></button>
+  <button id="targets" class="on" title="Show the target poses the model is given (G)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2.5"/><path d="M12 8v7m-5-4h10M9 21l3-6 3 6"/></svg><span class="lbl">Targets</span><kbd>G</kbd></button>
+  <button id="clear" title="Remove all props"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg><span class="lbl">Clear</span></button>
+</div>
+<div id="patterns" class="panel"></div>
+<div id="look" class="panel">
+  <div class="grp"><span>Character</span><button data-char="knight">Knight</button><button data-char="rogue_hooded">Rogue</button><button data-char="mage">Mage</button><button data-char="barbarian">Barbarian</button></div>
+  <div class="grp"><span>World</span><button data-world="playground">Playground</button><button data-world="studio">Studio</button></div>
+</div>
+<div id="cursorHint"></div>
+<div id="toast" class="panel"></div>
+<div id="beat"></div>
+
+
+<div id="loader">
+  <div class="card">
+    <h2>Loading the brain</h2>
+    <p>NVIDIA's MotionBricks motion model (about 200M parameters, a 210 MB download) loads once, is kept in this browser, and then runs entirely on your device.</p>
+    <div class="track"><div id="loadbar"></div></div>
+    <div id="loadtext">Starting…</div>
+  </div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
