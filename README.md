@@ -1,5 +1,7 @@
 # Direct the Hero: NVIDIA MotionBricks in the browser
 
+<p align="center"><img src="docs/media/preview.gif" alt="A knight running a parkour course: ducking under bars and vaulting boxes, all motion generated live by MotionBricks in the browser" width="720"></p>
+
 Place a bar, a box or a seat, click where to go, and a character ducks, vaults, sits and runs to get there.
 Every step is generated live by [NVIDIA MotionBricks](https://github.com/NVlabs/motionbricks), running in the
 browser tab. There's no server, and no GPU is needed.
@@ -65,6 +67,8 @@ python tools/run_on_cpu.py --motionbricks ~/src/motionbricks
 The green ghost is the target pose handed to the model. Everything in between is generated.
 
 ## How it works
+
+![The demo mid-vault: the green ghost is the target pose the model is given](docs/media/screenshot.jpg)
 
 ```
 click / prop / pattern
